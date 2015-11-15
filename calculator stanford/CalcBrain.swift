@@ -11,10 +11,23 @@
 import Foundation
 
 class CalcBrain {
-    private enum Op{
+    private enum Op :CustomStringConvertible{
         case Operand(Double)
         case UnaryOperation(String, Double -> Double)
         case BinaryOperation(String, (Double,Double)->Double)
+        
+        var description: String{
+            get{
+                switch self{
+                case .Operand(let operand):
+                    return "\(operand)"
+                case .BinaryOperation(let str, _ ):
+                    return str
+                case .UnaryOperation(let str, _):
+                    return str
+                }
+            }
+        }
     }
     
     private var opStack = [Op]()
@@ -46,7 +59,9 @@ class CalcBrain {
     }
     
     func eval()->Double?{
-        return eval(opStack).res
+        let (res,rem)=eval(opStack)
+        print("\(opStack)=\(res) with \(rem) left")
+        return res
     }
     
     private func eval(var ops: [Op])->(res:Double?,rem:[Op]){
