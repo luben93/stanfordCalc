@@ -2,6 +2,8 @@
 //  CalcBrain.swift
 //  calculator stanford
 //
+//  Model
+//
 //  Created by lucas persson on 2015-11-15.
 //  Copyright © 2015 lucas persson. All rights reserved.
 //
@@ -14,7 +16,7 @@ class CalcBrain {
         case UnaryOperation(String, Double -> Double)
         case BinaryOperation(String, (Double,Double)->Double)
     }
-
+    
     private var opStack = [Op]()
     private var knownOps = [String:Op]()
     
@@ -24,16 +26,23 @@ class CalcBrain {
         knownOps["x"]=Op.BinaryOperation("x", *)
         knownOps["/"]=Op.BinaryOperation("/"){$1/$0}
         knownOps["√"]=Op.UnaryOperation("√", sqrt)
+        knownOps["c"]=Op.UnaryOperation("c", { (Double) -> Double in
+            self.opStack=[Op]()
+            return 0
+        })
     }
+
     
-    func pushOperand(operand: Double){
+    func pushOperand(operand: Double)->Double?{
         opStack.append(Op.Operand(operand))
+        return eval()
     }
     
-    func doMath(symbol:String){
+    func doMath(symbol:String) -> Double?{
         if let operation = knownOps[symbol] {
-                opStack.append(operation)
+            opStack.append(operation)
         }
+        return eval()
     }
     
     func eval()->Double?{
@@ -62,7 +71,7 @@ class CalcBrain {
             }
             
         }
-     return (nil,ops)
+        return (nil,ops)
     }
     
 }

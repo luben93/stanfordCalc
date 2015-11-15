@@ -11,9 +11,8 @@ import UIKit
 class ViewController: UIViewController {
 
     @IBOutlet weak var display: UILabel!
-    
+    var brain = CalcBrain()
     var userIsInTheMiddleOfTypinhANumber: Bool = false
-    var operandStack = Array<Double>()
     var displayValue: Double {
         get{
             let disp:String = display.text!
@@ -29,7 +28,6 @@ class ViewController: UIViewController {
     
     @IBAction func appendDigit(sender: UIButton) {
         let digit = sender.currentTitle!
-        //print("digit=\(digit)")
         if userIsInTheMiddleOfTypinhANumber{
             display.text = display.text!+digit
         }else{
@@ -39,46 +37,32 @@ class ViewController: UIViewController {
     }
     
     @IBAction func oprate(sender: UIButton) {
-        let operation = sender.currentTitle!
         if userIsInTheMiddleOfTypinhANumber{
             enter()
         }
-        print(operandStack.last)
-        switch operation{
-            case "x": doMath {$0 * $1}
-            case "/": doMath {$0 / $1}
-            case "+": doMath {$0 + $1}
-            case "-": doMath {$0 - $1}
-            case "√": doMath1 {sqrt($0)}
-            default: break
-        }
-    }
-    
-    func doMath(operation: (Double, Double) -> Double){
-        if(operandStack.count >= 2){
-            let first:Double = operandStack.removeLast()
-            let second:Double = operandStack.removeLast()
-            let res:Double = operation(first,second)
-            displayValue = res
-            enter()
-        }
-    }
-    
-    func doMath1(operation: (Double) -> Double){
-        if(operandStack.count >= 1){
-            let first:Double = operandStack.removeLast()
-            let res:Double = operation(first)
-            displayValue = res
-            enter()
+        if let operation = sender.currentTitle{
+            brain.doMath(operation)
+            if let res = brain.eval(){
+                displayValue = res
+            
+            }else{
+                displayValue = 0 
+            }
+//            if let res = brain.doMath(operation){
+//                displayValue = res
+//            }else{
+//                displayValue = 0
+//            }
         }
     }
     
     @IBAction func enter() {
         userIsInTheMiddleOfTypinhANumber = false
-        let val:Double = displayValue
-        operandStack.append(val)
-        print(operandStack)
-        
+        if let result = brain.pushOperand(displayValue) {
+            displayValue = result
+        }else{
+            displayValue = 0
+        }
     }
 }
 
