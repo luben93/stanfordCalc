@@ -37,12 +37,29 @@ class CalcBrain {
     }
     
     func eval()->Double?{
-        return eval(opStack)
+        return eval(opStack).res
     }
     
-    private func eval(var ops: [Op])->(res:Double?,remainig:[Op]){
+    private func eval(var ops: [Op])->(res:Double?,rem:[Op]){
         if !ops.isEmpty{
             let op = ops.removeLast()
+            switch op{
+            case .Operand(let operand):
+                return (operand,ops)
+            case .UnaryOperation(_ , let Operation):
+                let opsEval=eval(ops)
+                if let operandEval=opsEval.res {
+                    return (Operation(operandEval),opsEval.rem)
+                }
+            case .BinaryOperation(_ , let Operation):
+                let opsEval=eval(ops)
+                if let operandEval=opsEval.res {
+                    let opsEval2=eval(opsEval.rem)
+                    if let operandEval2=opsEval2.res {
+                        return (Operation(operandEval,operandEval2),opsEval2.rem)
+                    }
+                }
+            }
             
         }
      return (nil,ops)
